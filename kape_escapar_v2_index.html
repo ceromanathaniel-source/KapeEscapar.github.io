@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Kape Escapar</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --cream:#fdf8f2;--brown:#3d1f0e;--brown2:#5c2d12;--brown-mid:#8b5e3c;
+  --gold:#c89a5c;--gold-light:#e8c99a;--warm:#f5ede0;--text:#2a1506;
+  --text-muted:#7a5c44;--white:#fff;--card:#fffdf9;--shadow:rgba(61,31,14,0.12);
+  --radius-lg: 16px;--radius-md: 10px;--transition: all 0.25s ease;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);line-height:1.5;-webkit-font-smoothing:antialiased;}
+
+.page-bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23c89a5c' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3Ccircle cx='0' cy='0' r='2'/%3E%3Ccircle cx='60' cy='0' r='2'/%3E%3Ccircle cx='0' cy='60' r='2'/%3E%3Ccircle cx='60' cy='60' r='2'/%3E%3C/g%3E%3C/svg%3E");}
+
+header{background:linear-gradient(135deg,var(--brown) 0%,var(--brown2) 100%);color:var(--white);
+  padding:14px 28px;display:flex;justify-content:space-between;align-items:center;
+  position:sticky;top:0;z-index:1000;box-shadow:0 4px 20px rgba(61,31,14,0.3);flex-wrap:wrap;gap:10px;}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-icon{width:40px;height:40px;background:var(--gold);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.logo h1{font-family:'Playfair Display',serif;font-size:21px;letter-spacing:0.3px;line-height:1.1;}
+.logo span{font-size:10px;font-weight:300;opacity:0.7;display:block;letter-spacing:2px;text-transform:uppercase;margin-top:2px;}
+
+nav{display:flex;gap:6px;flex-wrap:wrap;}
+nav button{background:transparent;color:var(--gold-light);border:1px solid rgba(200,154,92,0.3);
+  padding:7px 14px;border-radius:30px;cursor:pointer;font-family:'DM Sans',sans-serif;
+  font-size:13px;font-weight:500;transition:all .2s;}
+nav button:hover,nav button.active-nav{background:var(--gold);color:var(--brown);border-color:var(--gold);font-weight:600;}
+.cart-btn-wrap{background:var(--gold)!important;color:var(--brown)!important;
+  border-color:var(--gold)!important;font-weight:700!important;display:flex;align-items:center;}
+.cart-count{background:var(--brown);color:var(--gold);border-radius:50%;width:18px;height:18px;
+  display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-left:4px;}
+
+.page{display:none;padding:44px 20px 80px;min-height:90vh;position:relative;z-index:1;animation:fadeIn 0.4s ease;}
+.active{display:block;}
+@keyframes fadeIn { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:translateY(0);} }
+
+.section-title{font-family:'Playfair Display',serif;font-size:36px;text-align:center;color:var(--brown);margin-bottom:6px;font-weight:700;}
+.section-sub{text-align:center;color:var(--text-muted);font-size:14px;margin-bottom:8px;font-weight:300;letter-spacing:0.4px;}
+.divider{width:56px;height:3px;background:var(--gold);margin:10px auto 32px;border-radius:2px;}
+
+/* HERO & GALLERY */
+.hero{max-width:860px;margin:0 auto 50px;text-align:center;}
+.hero-eyebrow{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:14px;}
+.hero-title{font-family:'Playfair Display',serif;font-size:50px;line-height:1.15;color:var(--brown);margin-bottom:14px;}
+.hero-title em{color:var(--gold);font-style:italic;}
+.hero-sub{color:var(--text-muted);font-size:16px;max-width:480px;margin:0 auto 28px;line-height:1.7;font-weight:300;}
+.hero-cta{background:var(--brown);color:var(--gold-light);padding:13px 34px;border:none;border-radius:30px;
+  font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;letter-spacing:0.4px;transition:all .25s;}
+.hero-cta:hover{background:var(--brown2);transform:translateY(-2px);box-shadow:0 8px 20px var(--shadow);}
+
+.gallery{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;max-width:860px;margin:0 auto 40px;}
+.gallery-main{border-radius:20px;overflow:hidden;height:400px;box-shadow:0 8px 24px var(--shadow);background:var(--warm);}
+.gallery-right{display:flex;flex-direction:column;gap:14px;}
+.gallery-side{border-radius:16px;overflow:hidden;flex:1;min-height:0;box-shadow:0 8px 24px var(--shadow);background:var(--warm);}
+.gallery img,.gallery-side img{width:100%;height:100%;object-fit:cover;transition:transform .4s;display:block;}
+.gallery img:hover,.gallery-side img:hover{transform:scale(1.04);}
+
+.gallery-strip{display:flex;gap:12px;max-width:860px;margin:0 auto 48px;}
+.gallery-strip-item{flex:1;border-radius:14px;overflow:hidden;height:150px;box-shadow:0 8px 24px var(--shadow);background:var(--warm);}
+.gallery-strip-item img{width:100%;height:100%;object-fit:cover;transition:transform .4s;display:block;}
+.gallery-strip-item img:hover{transform:scale(1.05);}
+
+.vibes{max-width:860px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+.vibe-card{background:var(--card);border-radius:18px;padding:26px 18px;text-align:center;border:1px solid rgba(200,154,92,0.18);box-shadow:0 4px 14px var(--shadow);transition:var(--transition);}
+.vibe-card:hover{transform:translateY(-4px);box-shadow:0 8px 20px var(--shadow);}
+.vibe-icon{font-size:30px;margin-bottom:10px;display:inline-block;}
+.vibe-card h3{font-family:'Playfair Display',serif;font-size:16px;color:var(--brown);margin-bottom:7px;}
+.vibe-card p{color:var(--text-muted);font-size:13px;line-height:1.6;font-weight:300;}
+
+/* MENU STYLING */
+.menu-grid{max-width:940px;margin:0 auto;}
+.menu-tabs{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-bottom:28px;}
+.menu-tab{background:var(--white);border:1px solid rgba(200,154,92,0.3);color:var(--brown-mid);
+  padding:7px 18px;border-radius:30px;cursor:pointer;font-family:'DM Sans',sans-serif;
+  font-size:13px;font-weight:500;transition:all .2s;}
+.menu-tab:hover,.menu-tab.active-tab{background:var(--brown);color:var(--gold-light);border-color:var(--brown);font-weight:600;}
+
+.menu-section{display:none;}
+.menu-section.active-section{display:block;}
+.menu-cat-title{font-family:'Playfair Display',serif;font-size:21px;color:var(--brown);
+  padding-bottom:10px;border-bottom:2px solid var(--gold-light);margin-bottom:20px;font-weight:700;}
+.menu-items-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;margin-bottom:32px;}
+
+.menu-card{background:var(--card);border-radius:15px;overflow:hidden;
+  border:1px solid rgba(200,154,92,0.15);transition:all .22s;box-shadow:0 2px 10px rgba(61,31,14,0.05);display:flex;flex-direction:column;}
+.menu-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(61,31,14,0.11);border-color:var(--gold-light);}
+.menu-card-img{height:130px;background:linear-gradient(135deg,var(--warm),var(--gold-light));display:flex;align-items:center;justify-content:center;font-size:38px;overflow:hidden;position:relative;}
+.menu-card-body{padding:13px 15px;display:flex;flex-direction:column;flex-grow:1;justify-content:space-between;}
+.menu-card-name{font-weight:600;font-size:14px;color:var(--text);margin-bottom:4px;line-height:1.3;}
+.menu-card-desc{font-size:12px;color:var(--text-muted);margin-bottom:10px;line-height:1.4;flex-grow:1;}
+.menu-card-price{color:var(--brown);font-weight:700;font-size:15px;margin-bottom:10px;background:rgba(200,154,92,0.1);padding:3px 6px;border-radius:4px;align-self:flex-start;}
+.add-btn{width:100%;background:var(--brown);color:var(--gold-light);
+  border:none;padding:8px;border-radius:9px;cursor:pointer;font-size:13px;
+  font-weight:600;transition:all .18s;font-family:'DM Sans',sans-serif;margin-top:auto;}
+.add-btn:hover{background:var(--brown2);}
+
+/* ORDER STYLING */
+.order-layout{display:grid;grid-template-columns:1fr 360px;gap:24px;max-width:980px;margin:0 auto;align-items:start;}
+.order-panel{background:var(--card);border-radius:18px;padding:24px;
+  border:1px solid rgba(200,154,92,0.18);box-shadow:0 4px 18px var(--shadow);}
+.order-panel h3{font-family:'Playfair Display',serif;font-size:19px;color:var(--brown);
+  margin-bottom:18px;padding-bottom:11px;border-bottom:1px solid var(--gold-light);font-weight:700;}
+
+.cart-item{display:flex;justify-content:space-between;align-items:center;
+  padding:10px 0;border-bottom:1px solid rgba(200,154,92,0.13);gap:8px;}
+.cart-item-name{font-size:13px;color:var(--text);font-weight:500;}
+.cart-item-price{font-weight:700;color:var(--brown-mid);font-size:13px;margin-right:8px;}
+.remove-btn{background:none;border:none;color:#c0392b;cursor:pointer;font-size:17px;padding:0 5px;transition:transform .18s;line-height:1;}
+.remove-btn:hover{transform:scale(1.3);color:#e74c3c;}
+.cart-empty{text-align:center;color:var(--text-muted);padding:36px 0;font-size:14px;font-style:italic;}
+
+.cart-total-row{display:flex;justify-content:space-between;align-items:center;
+  margin-top:18px;padding-top:14px;border-top:2px solid var(--gold-light);}
+.cart-total-row .label{font-family:'Playfair Display',serif;font-size:18px;color:var(--brown);font-weight:600;}
+.cart-total-row .amount{font-family:'Playfair Display',serif;font-size:24px;color:var(--gold);font-weight:700;}
+
+.eta-box{background:linear-gradient(135deg,var(--warm),#fef9f0);border:1px solid var(--gold-light);
+  border-radius:12px;padding:14px 18px;margin:14px 0;display:flex;align-items:center;gap:12px;}
+.eta-icon{font-size:28px;}
+.eta-label{font-size:11px;color:var(--text-muted);margin-bottom:2px;text-transform:uppercase;letter-spacing:0.5px;}
+.eta-time{font-family:'Playfair Display',serif;font-size:20px;color:var(--brown);font-weight:700;}
+
+.payment-methods{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:14px 0;}
+.pay-option{border:2px solid rgba(200,154,92,0.25);border-radius:11px;padding:13px 8px;
+  text-align:center;cursor:pointer;transition:all .18s;background:var(--white);box-shadow:0 2px 6px rgba(0,0,0,0.02);}
+.pay-option:hover{border-color:var(--gold);transform:translateY(-1px);}
+.pay-option.selected{border-color:var(--brown);background:var(--warm);box-shadow:inset 0 2px 4px rgba(61,31,14,0.05);}
+.pay-icon{font-size:22px;margin-bottom:3px;}
+.pay-label{font-size:12px;font-weight:600;color:var(--brown);}
+
+.status-tracker{margin:16px 0 8px;padding:0 4px;}
+.status-steps{display:flex;justify-content:space-between;position:relative;margin-bottom:6px;}
+.status-steps::before{content:'';position:absolute;top:17px;left:0;right:0;height:3px;background:var(--gold-light);z-index:0;}
+.progress-bar{position:absolute;top:17px;left:0;height:3px;background:var(--gold);z-index:1;transition:width .6s cubic-bezier(0.4, 0, 0.2, 1);width:0%;}
+.status-step{display:flex;flex-direction:column;align-items:center;gap:7px;z-index:2;flex:1;}
+.step-circle{width:34px;height:34px;border-radius:50%;border:3px solid var(--gold-light);
+  background:var(--cream);display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .4s;box-shadow:0 2px 6px rgba(0,0,0,0.05);}
+.step-circle.done{background:var(--gold);border-color:var(--gold);color:var(--brown);}
+.step-circle.cur{background:var(--brown);border-color:var(--brown);color:var(--gold-light);animation:pulse 2s infinite;}
+.step-lbl{font-size:10px;color:var(--text-muted);text-align:center;max-width:58px;line-height:1.3;font-weight:500;}
+.step-lbl.done,.step-lbl.cur{color:var(--brown);font-weight:700;}
+@keyframes pulse { 0% {box-shadow:0 0 0 0 rgba(61,31,14,0.4);} 70% {box-shadow:0 0 0 6px rgba(61,31,14,0);} 100% {box-shadow:0 0 0 0 rgba(61,31,14,0);} }
+
+.place-btn{width:100%;background:linear-gradient(135deg,var(--brown),var(--brown2));
+  color:var(--gold-light);border:none;padding:15px;border-radius:13px;
+  font-family:'Playfair Display',serif;font-size:17px;font-weight:600;cursor:pointer;margin-top:14px;
+  transition:all .22s;letter-spacing:0.4px;box-shadow:0 4px 12px rgba(61,31,14,0.15);}
+.place-btn:hover{transform:translateY(-2px);box-shadow:0 8px 22px var(--shadow);}
+.place-btn:disabled{opacity:0.45;cursor:not-allowed;transform:none;}
+
+/* QUEUE STYLING */
+.queue-header{display:flex;justify-content:space-between;align-items:center;max-width:900px;margin:0 auto 20px;flex-wrap:wrap;gap:12px;}
+.queue-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;max-width:900px;margin:0 auto;}
+.queue-card{background:var(--card);border-radius:16px;padding:20px;border:1px solid rgba(200,154,92,0.18);box-shadow:0 3px 14px var(--shadow);position:relative;}
+.queue-card.status-waiting{border-left:5px solid #e67e22;}
+.queue-card.status-preparing{border-left:5px solid var(--gold);}
+.queue-card.status-almost{border-left:5px solid #2980b9;}
+.queue-card.status-ready{border-left:5px solid #27ae60;}
+.queue-card.status-done{opacity:0.55;border-left:5px solid #999;}
+
+.queue-num{font-family:'Playfair Display',serif;font-size:26px;color:var(--brown);font-weight:700;}
+.queue-badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin:6px 0;letter-spacing:0.5px;text-transform:uppercase;}
+.badge-waiting{background:#fde8d0;color:#b35e08;}
+.badge-preparing{background:#fef5dc;color:#856800;}
+.badge-almost{background:#dbeeff;color:#0d5fa0;}
+.badge-ready{background:#d5f5e3;color:#1a7a40;}
+.badge-done{background:#eee;color:#666;}
+.queue-items{font-size:12px;color:var(--text);margin:8px 0;line-height:1.7;background:var(--cream);padding:6px 10px;border-radius:var(--radius-md);}
+.queue-meta{font-size:12px;color:var(--text-muted);margin-bottom:12px;}
+.queue-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.q-btn{font-size:12px;font-family:'DM Sans',sans-serif;padding:6px 12px;border-radius:8px;border:none;cursor:pointer;font-weight:600;transition:all .18s;flex:1;text-align:center;}
+.q-btn-next{background:var(--brown);color:var(--gold-light);}
+.q-btn-next:hover{background:var(--brown2);}
+.q-btn-del{background:#fee;color:#c0392b;}
+.q-btn-del:hover{background:#fcc;}
+.queue-empty{text-align:center;padding:60px 20px;color:var(--text-muted);max-width:400px;margin:0 auto;grid-column:1/-1;}
+.queue-stats{display:flex;gap:14px;flex-wrap:wrap;}
+.stat-chip{background:var(--card);border:1px solid rgba(200,154,92,0.2);border-radius:10px;padding:8px 16px;font-size:13px;color:var(--brown);font-weight:500;}
+.stat-chip span{font-weight:700;color:var(--gold);margin-left:4px;}
+.clear-btn{background:var(--warm);border:1px solid rgba(200,154,92,0.3);color:var(--brown-mid);padding:8px 16px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;transition:all .18s;}
+.clear-btn:hover{background:var(--gold-light);}
+
+/* PROMO STYLING */
+.promo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:22px;max-width:940px;margin:0 auto;}
+.promo-card{border-radius:20px;overflow:hidden;box-shadow:0 4px 18px var(--shadow);transition:transform .22s;background:var(--card);border:1px solid rgba(200,154,92,0.12);display:flex;flex-direction:column;}
+.promo-card:hover{transform:translateY(-5px);}
+.promo-banner{padding:30px 26px;position:relative;}
+.promo-banner.gold{background:linear-gradient(135deg,#c89a5c,#e8c99a);}
+.promo-banner.brown{background:linear-gradient(135deg,#3d1f0e,#5c2d12);}
+.promo-banner.warm{background:linear-gradient(135deg,#8b5e3c,#c89a5c);}
+.promo-badge2{display:inline-block;background:rgba(255,255,255,0.22);color:var(--white);font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:8px;}
+.promo-badge2.dark{background:rgba(61,31,14,0.18);color:var(--brown);}
+.promo-pct{font-family:'Playfair Display',serif;font-size:48px;font-weight:700;line-height:1;color:var(--white);}
+.promo-pct.dark-text{color:var(--brown);}
+.promo-off{font-size:16px;font-weight:400;color:rgba(255,255,255,0.8);}
+.promo-off.dark-text{color:var(--brown-mid);}
+.promo-body{background:var(--card);padding:18px 22px;display:flex;flex-direction:column;flex-grow:1;justify-content:space-between;}
+.promo-title{font-family:'Playfair Display',serif;font-size:17px;color:var(--brown);margin-bottom:5px;font-weight:700;}
+.promo-desc{font-size:13px;color:var(--text-muted);line-height:1.6;margin-bottom:12px;flex-grow:1;}
+.promo-tag{display:inline-block;background:var(--warm);color:var(--brown-mid);font-size:11px;font-weight:600;padding:3px 11px;border-radius:20px;align-self:flex-start;}
+
+/* CONTACT CODES */
+.contact-wrap{max-width:680px;margin:0 auto;}
+.social-input-card{background:var(--card);border-radius:16px;padding:22px;border:1px solid rgba(200,154,92,0.18);margin-bottom:14px;box-shadow:0 4px 14px var(--shadow);}
+.social-input-card h4{font-family:'Playfair Display',serif;font-size:16px;color:var(--brown);margin-bottom:14px;font-weight:700;}
+.social-row{display:flex;align-items:center;gap:10px;margin-bottom:11px;}
+.social-row-icon{font-size:19px;width:26px;text-align:center;}
+.social-row-label{font-size:13px;color:var(--text-muted);width:84px;flex-shrink:0;font-weight:500;}
+.social-input{flex:1;border:1px solid rgba(200,154,92,0.3);border-radius:8px;padding:8px 11px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);background:var(--cream);outline:none;transition:border .18s;}
+.social-input:focus{border-color:var(--gold);background:var(--white);}
+.save-btn{background:var(--brown);color:var(--gold-light);border:none;padding:9px 22px;border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;transition:all .18s;margin-top:4px;}
+.save-btn:hover{background:var(--brown2);}
+.socials-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px;}
+.social-card{background:var(--card);border-radius:14px;padding:20px;border:1px solid rgba(200,154,92,0.18);text-align:center;transition:all .22s;box-shadow:0 4px 12px var(--shadow);}
+.social-card:hover{transform:translateY(-3px);box-shadow:0 7px 22px var(--shadow);border-color:var(--gold);}
+.social-icon{font-size:34px;margin-bottom:8px;}
+.social-name{font-weight:600;color:var(--brown);font-size:14px;margin-bottom:3px;}
+.social-handle{color:var(--text-muted);font-size:12px;word-break:break-all;}
+.info-card{background:var(--card);border-radius:16px;padding:22px;border:1px solid rgba(200,154,92,0.18);margin-top:14px;box-shadow:0 4px 14px var(--shadow);}
+.info-card h4{font-family:'Playfair Display',serif;font-size:16px;color:var(--brown);margin-bottom:14px;font-weight:700;}
+.info-row{display:flex;gap:10px;margin-bottom:10px;font-size:14px;color:var(--text-muted);border-bottom:1px solid rgba(200,154,92,0.05);padding-bottom:8px;}
+.info-row strong{color:var(--brown);min-width:66px;display:block;flex-shrink:0;}
+
+/* TOASTS & MODALS */
+.toast{position:fixed;bottom:26px;right:26px;background:var(--brown);color:var(--gold-light);padding:11px 20px;border-radius:11px;font-size:13px;z-index:9999;transform:translateY(70px);opacity:0;transition:all .3s;pointer-events:none;box-shadow:0 6px 22px rgba(61,31,14,0.28);border:1px solid var(--gold);}
+.toast.show{transform:translateY(0);opacity:1;}
+.modal-overlay{position:fixed;inset:0;background:rgba(61,31,14,0.55);backdrop-filter:blur(2px);z-index:5000;display:none;align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--cream);border-radius:22px;padding:34px;max-width:380px;width:90%;text-align:center;box-shadow:0 20px 56px rgba(61,31,14,0.28);border:1px solid var(--gold-light);}
+.modal-icon{font-size:52px;margin-bottom:14px;}
+.modal-title{font-family:'Playfair Display',serif;font-size:24px;color:var(--brown);margin-bottom:7px;font-weight:700;}
+.modal-sub{color:var(--text-muted);font-size:14px;line-height:1.6;margin-bottom:22px;}
+.modal-qnum{font-family:'Playfair Display',serif;font-size:32px;color:var(--gold);font-weight:700;margin:10px 0;background:var(--white);padding:6px;border-radius:10px;border:1px dashed var(--gold);}
+.modal-btn{background:var(--brown);color:var(--gold-light);border:none;padding:11px 30px;border-radius:12px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;transition:all .18s;}
+
+footer{background:var(--brown);color:var(--gold-light);text-align:center;padding:18px;font-size:13px;letter-spacing:0.4px;border-top:1px solid rgba(200,154,92,0.15);}
+
+@media(max-width:920px){ .order-layout{grid-template-columns:1fr;} }
+@media(max-width:768px){
+  header{padding:12px 14px;justify-content:center;}
+  .logo{width:100%;justify-content:center;text-align:center;margin-bottom:4px;}
+  nav{justify-content:center;width:100%;}
+  .hero-title{font-size:34px;}
+  .gallery{grid-template-columns:1fr;}
+  .gallery-main{height:240px;} .gallery-side{height:150px;}
+  .gallery-strip{flex-direction:column;gap:12px;}
+  .vibes{grid-template-columns:1fr;} .socials-grid{grid-template-columns:1fr;}
+  .menu-tabs{gap:5px;} .menu-tab{padding:6px 14px;font-size:12px;}
+}
+</style>
+</head>
+<body>
+<div class="page-bg"></div>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">☕</div>
+    <div>
+      <h1>Kape Escapar</h1>
+      <span>est. 2023 · Caloocan City</span>
+    </div>
+  </div>
+  <nav>
+    <button id="nav-home" class="active-nav" onclick="showPage('home')">Home</button>
+    <button id="nav-menu" onclick="showPage('menu')">Menu</button>
+    <button id="nav-order" class="cart-btn-wrap" onclick="showPage('order')">🛒 Order <span class="cart-count" id="cartCount">0</span></button>
+    <button id="nav-queue" onclick="showPage('queue')">📋 Queue</button>
+    <button id="nav-promo" onclick="showPage('promo')">Promos</button>
+    <button id="nav-contact" onclick="showPage('contact')">Contact</button>
+  </nav>
+</header>
+
+<section id="home" class="page active">
+  <div class="hero">
+    <p class="hero-eyebrow">Your neighbourhood escape</p>
+    <h2 class="hero-title">Where every sip feels like <em>home</em></h2>
+    <p class="hero-sub">Crafted drinks, warm food, and a cozy corner to call yours — right here in Caloocan City.</p>
+    <button class="hero-cta" onclick="showPage('menu')">Explore Our Menu →</button>
+  </div>
+  <div class="gallery">
+    <div class="gallery-main"><img id="img-hero1" src="7b6cbf76-8393-49df-98f2-7decd7777e14.jpg" alt="Kape Escapar Combos"/></div>
+    <div class="gallery-right">
+      <div class="gallery-side"><img id="img-hero2" src="ad9345aa-80d5-42a6-a398-8c62044be34c.jpg" alt="Kape Escapar Signature Lattes"/></div>
+      <div class="gallery-side"><img id="img-hero3" src="32349e38-a04c-4b7b-a625-3275ddf04846.jpg" alt="Kape Escapar Iced Specialties"/></div>
+    </div>
+  </div>
+  <div class="gallery-strip">
+    <div class="gallery-strip-item"><img id="img-strip1" src="5bc99578-8210-454a-8409-45281a77c16b.jpg" alt="Kape Escapar Savory Rice Bowls"/></div>
+    <div class="gallery-strip-item"><img id="img-strip2" src="771c4751-2ce2-4733-9adc-0dfb192e268b.jpg" alt="Kape Escapar Coffee Bar"/></div>
+  </div>
+  <div class="vibes">
+    <div class="vibe-card"><div class="vibe-icon">☕</div><h3>Crafted with Care</h3><p>Every cup is made fresh — from espresso to matcha, brewed the Escapar way.</p></div>
+    <div class="vibe-card"><div class="vibe-icon">🌿</div><h3>Cozy Atmosphere</h3><p>A calm, beautiful space to unwind, study, or catch up with friends.</p></div>
+    <div class="vibe-card"><div class="vibe-icon">🍽️</div><h3>Good Food Too</h3><p>Rice bowls, sandwiches, and sweet treats — there's something for everyone.</p></div>
+  </div>
+</section>
+
+<section id="menu" class="page">
+  <h2 class="section-title">Our Menu</h2>
+  <p class="section-sub">Choose a category · Add items to your order</p>
+  <div class="divider"></div>
+  <div class="menu-grid">
+    <div class="menu-tabs">
+      <button class="menu-tab active-tab" onclick="switchTab('coffee',this)">☕ Coffee</button>
+      <button class="menu-tab" onclick="switchTab('noncoffee',this)">🍵 Non-Coffee</button>
+      <button class="menu-tab" onclick="switchTab('blended',this)">🥤 Blended</button>
+      <button class="menu-tab" onclick="switchTab('fruittea',this)">🍓 Fruit Tea</button>
+      <button class="menu-tab" onclick="switchTab('addons',this)">✨ Add-ons</button>
+      <button class="menu-tab" onclick="switchTab('food',this)">🍽️ Food</button>
+    </div>
+
+    <div class="menu-section active-section" id="tab-coffee">
+      <div class="menu-cat-title">Coffee Drinks</div>
+      <div class="menu-items-grid" id="grid-coffee"></div>
+    </div>
+    <div class="menu-section" id="tab-noncoffee">
+      <div class="menu-cat-title">Non-Coffee</div>
+      <div class="menu-items-grid" id="grid-noncoffee"></div>
+    </div>
+    <div class="menu-section" id="tab-blended">
+      <div class="menu-cat-title">Blended Drinks</div>
+      <div class="menu-items-grid" id="grid-blended"></div>
+    </div>
+    <div class="menu-section" id="tab-fruittea">
+      <div class="menu-cat-title">Fruit Tea</div>
+      <div class="menu-items-grid" id="grid-fruittea"></div>
+    </div>
+    <div class="menu-section" id="tab-addons">
+      <div class="menu-cat-title">Add-ons</div>
+      <div class="menu-items-grid" id="grid-addons"></div>
+    </div>
+    <div class="menu-section" id="tab-food">
+      <div class="menu-cat-title">Food</div>
+      <div class="menu-items-grid" id="grid-food"></div>
+    </div>
+  </div>
+</section>
+
+<section id="order" class="page">
+  <h2 class="section-title">Your Order</h2>
+  <p class="section-sub">Review items · Choose payment · Place order</p>
+  <div class="divider"></div>
+  <div class="order-layout">
+    <div class="order-panel">
+      <h3>🛒 Cart Items</h3>
+      <div id="cartItems"><div class="cart-empty">No items yet — browse the menu!</div></div>
+      <div class="cart-total-row">
+        <span class="label">Total</span>
+        <span class="amount">₱<span id="totalPrice">0</span></span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:18px;">
+      <div class="order-panel">
+        <h3>⏱ Estimated Time</h3>
+        <div class="eta-box">
+          <div class="eta-icon">🕐</div>
+          <div>
+            <div class="eta-label">Approximate wait time</div>
+            <div class="eta-time" id="etaDisplay">— min</div>
+          </div>
+        </div>
+        <p style="font-size:11px;color:var(--text-muted);">1–2 items: 15–20 min &nbsp;·&nbsp; 3–4 items: 25–30 min &nbsp;·&nbsp; 5+ items: ~35 min</p>
+      </div>
+      <div class="order-panel">
+        <h3>📍 Order Status</h3>
+        <div class="status-tracker">
+          <div class="status-steps">
+            <div class="progress-bar" id="progressBar"></div>
+            <div class="status-step"><div class="step-circle" id="step1">📝</div><div class="step-lbl" id="lbl1">Placed</div></div>
+            <div class="status-step"><div class="step-circle" id="step2">👩‍🍳</div><div class="step-lbl" id="lbl2">Preparing</div></div>
+            <div class="status-step"><div class="step-circle" id="step3">☕</div><div class="step-lbl" id="lbl3">Almost Ready</div></div>
+            <div class="status-step"><div class="step-circle" id="step4">✅</div><div class="step-lbl" id="lbl4">Ready!</div></div>
+          </div>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);margin-top:14px;" id="statusMsg">Place your order to begin tracking.</p>
+      </div>
+      <div class="order-panel">
+        <h3>💳 Payment Method</h3>
+        <div class="payment-methods">
+          <div class="pay-option" onclick="selectPayment('Cash',this)"><div class="pay-icon">💵</div><div class="pay-label">Cash</div></div>
+          <div class="pay-option" onclick="selectPayment('GCash',this)"><div class="pay-icon">📱</div><div class="pay-label">GCash</div></div>
+          <div class="pay-option" onclick="selectPayment('Maya',this)"><div class="pay-icon">💳</div><div class="pay-label">Maya</div></div>
+        </div>
+        <p style="font-size:12px;color:var(--text-muted);" id="payNote">Select a payment method to continue.</p>
+        <button class="place-btn" id="placeOrderBtn" onclick="placeOrder()">Place Order</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="queue" class="page">
+  <h2 class="section-title">Order Queue</h2>
+  <p class="section-sub">Live order tracking — update statuses as orders are prepared</p>
+  <div class="divider"></div>
+  <div class="queue-header">
+    <div class="queue-stats" id="queueStats"></div>
+    <button class="clear-btn" onclick="clearDoneOrders()">Clear Completed</button>
+  </div>
+  <div class="queue-grid" id="queueGrid"></div>
+</section>
+
+<section id="promo" class="page">
+  <h2 class="section-title">Promos & Deals</h2>
+  <p class="section-sub">Exclusive treats for our Escapar community</p>
+  <div class="divider"></div>
+  <div class="promo-grid">
+    <div class="promo-card"><div class="promo-banner gold"><div class="promo-badge2 dark">Limited Time</div><div class="promo-pct dark-text">10%<span class="promo-off dark-text"> off</span></div></div><div class="promo-body"><div class="promo-title">Bundle &amp; Save</div><div class="promo-desc">Order 3 or more items in one transaction and enjoy 10% off your entire bill. Perfect for group orders!</div><span class="promo-tag">Min. 3 items</span></div></div>
+    <div class="promo-card"><div class="promo-banner brown"><div class="promo-badge2">Happy Hour</div><div class="promo-pct">15%<span class="promo-off"> off</span></div></div><div class="promo-body"><div class="promo-title">Afternoon Escape</div><div class="promo-desc">Get 15% off all coffee drinks every weekday from 2PM–5PM. The perfect afternoon pick-me-up.</div><span class="promo-tag">2PM–5PM Weekdays</span></div></div>
+    <div class="promo-card"><div class="promo-banner warm"><div class="promo-badge2">Combo Deal</div><div class="promo-pct">Free<span class="promo-off" style="font-size:14px;"> add-on</span></div></div><div class="promo-body"><div class="promo-title">Drink + Food Combo</div><div class="promo-desc">Order any drink + food item and get a free add-on of your choice (Sinkers, Whipped Cream, or Syrup).</div><span class="promo-tag">Any drink + food</span></div></div>
+    <div class="promo-card"><div class="promo-banner" style="background:linear-gradient(135deg,#1a472a,#2d6a4f);"><div class="promo-badge2">Student Promo</div><div class="promo-pct" style="color:#a8d5ba;">₱15<span class="promo-off" style="color:rgba(168,213,186,0.8);"> off</span></div></div><div class="promo-body"><div class="promo-title">Student Discount</div><div class="promo-desc">Show your valid school ID and get ₱15 off any drink. Because you deserve a break from studying!</div><span class="promo-tag">Valid school ID required</span></div></div>
+    <div class="promo-card"><div class="promo-banner" style="background:linear-gradient(135deg,#6b2d8b,#9b59b6);"><div class="promo-badge2">Birthday</div><div class="promo-pct">1 Free<span class="promo-off" style="font-size:14px;"> drink</span></div></div><div class="promo-body"><div class="promo-title">Birthday Treat</div><div class="promo-desc">Celebrate your special day with us! Get a free drink on your birthday when you dine in. Bring a valid ID.</div><span class="promo-tag">On your birthday · Valid ID</span></div></div>
+    <div class="promo-card"><div class="promo-banner" style="background:linear-gradient(135deg,#b5470b,#e67e22);"><div class="promo-badge2">Loyalty</div><div class="promo-pct">Buy 5<span class="promo-off" style="font-size:14px;"> get 1</span></div></div><div class="promo-body"><div class="promo-title">Escapar Loyalty Card</div><div class="promo-desc">Buy 5 drinks and get your 6th FREE. Ask our staff for your loyalty card on your next visit!</div><span class="promo-tag">Ask staff for card</span></div></div>
+  </div>
+</section>
+
+<section id="contact" class="page">
+  <h2 class="section-title">Find Us</h2>
+  <p class="section-sub">Follow us and stay updated with our latest offerings</p>
+  <div class="divider"></div>
+  <div class="contact-wrap">
+    <div class="social-input-card">
+      <h4>🔗 Manage Social Links</h4>
+      <div class="social-row">
+        <span class="social-row-icon">🔵</span>
+        <span class="social-row-label">Facebook</span>
+        <input type="text" id="input-fb" class="social-input" value="https://facebook.com/kapeescapar"/>
+      </div>
+      <div class="social-row">
+        <span class="social-row-icon">📸</span>
+        <span class="social-row-label">Instagram</span>
+        <input type="text" id="input-ig" class="social-input" value="https://instagram.com/kapeescapar"/>
+      </div>
+      <div class="social-row">
+        <span class="social-row-icon">🎵</span>
+        <span class="social-row-label">TikTok</span>
+        <input type="text" id="input-tt" class="social-input" value="https://tiktok.com/@kapeescapar"/>
+      </div>
+      <button class="save-btn" onclick="saveSocials()">Save Links</button>
+    </div>
+
+    <div class="socials-grid">
+      <div class="social-card">
+        <div class="social-icon" style="color:#1877f2;">🔵</div>
+        <div class="social-name">Facebook</div>
+        <div class="social-handle" id="lbl-fb">kapeescapar</div>
+      </div>
+      <div class="social-card">
+        <div class="social-icon" style="color:#e1306c;">📸</div>
+        <div class="social-name">Instagram</div>
+        <div class="social-handle" id="lbl-ig">@kapeescapar</div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <h4>📍 Store Details</h4>
+      <div class="info-row"><strong>Address</strong><span>123 Espresso St., Caloocan City, Philippines</span></div>
+      <div class="info-row"><strong>Hours</strong><span>9:00 AM - 10:00 PM (Daily)</span></div>
+      <div class="info-row"><strong>Email</strong><span>hello@kapeescapar.com</span></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>&copy; 2026 Kape Escapar. All Rights Reserved.</p>
+</footer>
+
+<div class="toast" id="toast">Item added to cart!</div>
+
+<div class="modal-overlay" id="orderModal">
+  <div class="modal-box">
+    <div class="modal-icon">🎉</div>
+    <div class="modal-title">Order Placed!</div>
+    <div class="modal-sub">Thank you for escaping with us. Your queue number is:</div>
+    <div class="modal-qnum" id="queueNum">#000</div>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:20px;">You can track your order live on the Queue page.</p>
+    <button class="modal-btn" onclick="closeModal()">Awesome</button>
+  </div>
+</div>
+
+<script>
+/* =========================================
+   PAGE NAVIGATION
+========================================= */
+const pages = document.querySelectorAll(".page");
+const navButtons = document.querySelectorAll("nav button");
+
+function showPage(pageId, clickedBtn = null) {
+  pages.forEach(page => page.classList.remove("active"));
+  const targetPage = document.getElementById(pageId);
+  if (targetPage) targetPage.classList.add("active");
+
+  navButtons.forEach(btn => btn.classList.remove("active-nav"));
+  if (clickedBtn) {
+    clickedBtn.classList.add("active-nav");
+  } else {
+    const defaultBtn = document.getElementById(`nav-${pageId}`);
+    if (defaultBtn) defaultBtn.classList.add("active-nav");
+  }
+}
+
+/* =========================================
+   MENU TAB FUNCTION
+========================================= */
+function switchTab(category, clickedTab) {
+  document.querySelectorAll(".menu-tab").forEach(tab => tab.classList.remove("active-tab"));
+  document.querySelectorAll(".menu-section").forEach(sec => sec.classList.remove("active-section"));
+
+  clickedTab.classList.add("active-tab");
+  const targetSection = document.getElementById(`tab-${category}`);
+  if (targetSection) targetSection.classList.add("active-section");
+}
+
+/* =========================================
+   MENU DATA & INITIALIZATION
+========================================= */
+var menuData = {
+  coffee: [
+    {n:'Americano',p:90,e:'☕'}, {n:'Cafe Latte',p:100,e:'☕'},
+    {n:'Vanilla Latte',p:120,e:'☕'}, {n:'French Vanilla Latte',p:120,e:'☕'},
+    {n:'Caramel Latte',p:120,e:'🍮'}, {n:'Hazelnut Latte',p:125,e:'🌰'},
+    {n:'Mocha Latte',p:125,e:'🍫'}, {n:'Spanish Latte',p:135,e:'☕'},
+    {n:'Caramel Macchiato',p:125,e:'🍮'}, {n:'White Chocolate',p:125,e:'🤍'},
+    {n:'Oat Milk Latte',p:145,e:'🌾'}, {n:'Sea Salt Latte',p:145,e:'🧂'},
+    {n:'Escapar Blend',p:135,e:'⭐'}, {n:'Biscoff Latte (Iced 16oz)',p:150,e:'🍪'},
+    {n:'Toffee Latte',p:135,e:'🍬'}
+  ],
+  noncoffee: [
+    {n:'White Chocolate Latte (Iced)',p:95,e:'🤍'}, {n:'Ube Milk (Iced)',p:95,e:'🟣'},
+    {n:'Strawberry Latte (Iced)',p:95,e:'🍓'}, {n:'Blueberry Latte (Iced)',p:95,e:'🫐'},
+    {n:'Chocolate Latte',p:95,e:'🍫'}, {n:'Matcha Latte',p:125,e:'🍵'},
+    {n:'Oat Milk Matcha Latte',p:150,e:'🌾'}, {n:'Thai Milk Tea (Iced)',p:95,e:'🧡'},
+    {n:'Hot Chocolate (Hot 8oz)',p:95,e:'🍫'}
+  ],
+  blended: [
+    {n:'Java Chip Caramel Frappe',p:135,e:'☕'}, {n:'Strawberry Frappe',p:135,e:'🍓'},
+    {n:'Blueberry Frappe',p:135,e:'🫐'}, {n:'Chocolate Frappe',p:135,e:'🍫'},
+    {n:'Cookies & Cream Frappe',p:135,e:'🍪'}, {n:'Matcha Frappe',p:135,e:'🍵'}
+  ],
+  fruittea: [
+    {n:'Mango Tea',p:80,e:'🥭'}, {n:'Passion Fruit Tea',p:80,e:'💛'},
+    {n:'Strawberry Tea',p:80,e:'🍓'}, {n:'Watermelon Tea',p:80,e:'🍉'},
+    {n:'Lychee Tea',p:80,e:'🍈'}, {n:'Blueberry Tea',p:80,e:'🫐'},
+    {n:'Pineapple Tea',p:80,e:'🍍'},
+    {n:'Mango Cooler',p:80,e:'🍹'}, {n:'Passion Fruit Cooler',p:80,e:'🍹'},
+    {n:'Strawberry Cooler',p:80,e:'🍹'}, {n:'Watermelon Cooler',p:80,e:'🍹'},
+    {n:'Lychee Cooler',p:80,e:'🍹'}, {n:'Blueberry Cooler',p:80,e:'🍹'},
+    {n:'Pineapple Cooler',p:80,e:'🍹'}
+  ],
+  addons: [
+    {n:'ESPRESSO SHOT',p:20,e:'⚡'}, {n:'OAT MILK',p:45,e:'🌾'},
+    {n:'WHIPPED CREAM',p:25,e:'🍦'}, {n:'SAUCE (DRIZZLE)',p:20,e:'🍯'},
+    {n:'FLAVORED SYRUP',p:25,e:'🍯'}, {n:'SINKERS',p:10,e:'🟤'}
+  ],
+  food: [
+    {n:'Fries (Cheese/BBQ/Sour Cream)',p:60,e:'🍟'}, {n:'Chicken Poppers',p:60,e:'🍗'},
+    {n:'Chocolate Chip Cookie',p:55,e:'🍪'}, {n:'Triple Chocolate Chip Cookie',p:60,e:'🍪'},
+    {n:'Matcha Cookie',p:60,e:'🍪'}, {n:'Red Velvet Cookie',p:65,e:'🍪'},
+    {n:'Campfire Cookie',p:65,e:'🍪'},
+    {n:'Waffle - White Choco',p:99,e:'🧇'}, {n:'Waffle - Cookies & Cream',p:99,e:'🧇'},
+    {n:'Waffle - Strawberry Oreo',p:99,e:'🧇'}, {n:'Waffle - Caramel Oreo',p:99,e:'🧇'},
+    {n:'Waffle - Almond White Choco',p:99,e:'🧇'}, {n:'Waffle - Strawberry Almond',p:99,e:'🧇'},
+    {n:'Waffle - Caramel Almond',p:99,e:'🧇'}, {n:'Waffle - Nutella',p:129,e:'🧇'},
+    {n:'Waffle - Nutella Oreo',p:134,e:'🧇'}, {n:'Waffle - Nutella Almond',p:134,e:'🧇'},
+    {n:'Solo Cheesy Samyang',p:150,e:'🍜'},
+    {n:'Hungarian Sausage Rice Meal',p:99,e:'🍚'}, {n:'Tapa Rice Meal',p:99,e:'🍚'},
+    {n:'Chicken Fillet Rice Meal (with Gravy)',p:129,e:'🍚'}, {n:'Chicken Wings Rice Meal (3pcs)',p:119,e:'🍗'},
+    {n:'Korean Ham Sandwich',p:129,e:'🥪'}
+  ]
+};
+
+function renderMenu() {
+  for (const key in menuData) {
+    const grid = document.getElementById(`grid-${key}`);
+    if (!grid) continue;
+    grid.innerHTML = "";
+    menuData[key].forEach(item => {
+      grid.innerHTML += `
+        <div class="menu-card">
+          <div class="menu-card-img">${item.e}</div>
+          <div class="menu-card-body">
+            <div>
+              <div class="menu-card-name">${item.n}</div>
+              <div class="menu-card-desc">Deliciously handcrafted.</div>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+              <span class="menu-card-price">₱${item.p}</span>
+              <button class="add-btn" style="width:auto; padding:5px 10px;" onclick="addToCart('${item.n.replace(/'/g, "\\'")}', ${item.p})">Add</button>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+  }
+}
+
+/* =========================================
+   CART & ORDER FUNCTIONALITY
+========================================= */
+let cart = [];
+let selectedPaymentMethod = "";
+let currentOrderIndex = -1;
+
+function addToCart(name, price) {
+  cart.push({ name, price });
+  updateCart();
+  showToast(`${name} added to cart!`);
+}
+
+function removeFromCart(index) {
+  cart.splice(index, 1);
+  updateCart();
+}
+
+function updateCart() {
+  const cartContainer = document.getElementById("cartItems");
+  const cartCount = document.getElementById("cartCount");
+  const totalPrice = document.getElementById("totalPrice");
+  
+  if (!cartContainer) return;
+  cartContainer.innerHTML = "";
+
+  if (cart.length === 0) {
+    cartContainer.innerHTML = `<div class="cart-empty">No items yet — browse the menu!</div>`;
+    if (cartCount) cartCount.textContent = "0";
+    if (totalPrice) totalPrice.textContent = "0";
+    document.getElementById("etaDisplay").textContent = "— min";
+    updateProgressBar(0, "Place your order to begin tracking.");
+    return;
+  }
+
+  cart.forEach((item, index) => {
+    cartContainer.innerHTML += `
+      <div class="cart-item">
+        <span class="cart-item-name">${item.name}</span>
+        <div>
+          <span class="cart-item-price">₱${item.price}</span>
+          <button class="remove-btn" onclick="removeFromCart(${index})">&times;</button>
+        </div>
+      </div>
+    `;
+  });
+
+  if (cartCount) cartCount.textContent = cart.length;
+  const total = cart.reduce((sum, item) => sum + item.price, 0);
+  if (totalPrice) totalPrice.textContent = total;
+
+  // Calculate ETA
+  let eta = "15-20 min";
+  if (cart.length >= 3 && cart.length <= 4) eta = "25-30 min";
+  else if (cart.length >= 5) eta = "~35 min";
+  document.getElementById("etaDisplay").textContent = eta;
+}
+
+function selectPayment(method, element) {
+  document.querySelectorAll(".pay-option").forEach(opt => opt.classList.remove("selected"));
+  element.classList.add("selected");
+  selectedPaymentMethod = method;
+  document.getElementById("payNote").textContent = `Selected Payment: ${method}`;
+}
+
+function updateProgressBar(step, message) {
+  const bar = document.getElementById("progressBar");
+  const msg = document.getElementById("statusMsg");
+  
+  document.querySelectorAll(".step-circle").forEach(c => {
+    c.classList.remove("done", "cur");
+  });
+  document.querySelectorAll(".step-lbl").forEach(l => {
+    l.classList.remove("done", "cur");
+  });
+
+  if (step === 0) {
+    bar.style.width = "0%";
+    msg.textContent = message;
+    return;
+  }
+
+  bar.style.width = ((step - 1) / 3 * 100) + "%";
+  msg.textContent = message;
+
+  for (let i = 1; i <= 4; i++) {
+    const circle = document.getElementById(`step${i}`);
+    const lbl = document.getElementById(`lbl${i}`);
+    if (i < step) {
+      if (circle) circle.classList.add("done");
+      if (lbl) lbl.classList.add("done");
+    } else if (i === step) {
+      if (circle) circle.classList.add("cur");
+      if (lbl) lbl.classList.add("cur");
+    }
+  }
+}
+
+/* =========================================
+   LIVE QUEUE MANAGEMENT (ADMIN/USER CONTROLS)
+========================================= */
+let queueOrders = [];
+let nextQueueNum = 101;
+
+function placeOrder() {
+  if (cart.length === 0) {
+    showToast("Your cart is empty!");
+    return;
+  }
+  if (!selectedPaymentMethod) {
+    showToast("Please select a payment method.");
+    return;
+  }
+
+  const orderNumStr = "#" + nextQueueNum;
+  const itemSummary = cart.map(i => i.name).join(", ");
+  const totalAmt = cart.reduce((sum, item) => sum + item.price, 0);
+  
+  const newOrder = {
+    num: orderNumStr,
+    items: itemSummary,
+    total: totalAmt,
+    pay: selectedPaymentMethod,
+    status: "waiting", // waiting, preparing, almost, ready, done
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  };
+
+  queueOrders.push(newOrder);
+  currentOrderIndex = queueOrders.length - 1;
+
+  // Show order success modal
+  document.getElementById("queueNum").textContent = orderNumStr;
+  document.getElementById("orderModal").classList.add("open");
+
+  // Track the newly placed order on the checkout screen status tracker
+  updateProgressBar(1, "Order placed successfully! Waiting for confirmation.");
+
+  // Clear current cart session
+  cart = [];
+  selectedPaymentMethod = "";
+  document.querySelectorAll(".pay-option").forEach(opt => opt.classList.remove("selected"));
+  document.getElementById("payNote").textContent = "Select a payment method to continue.";
+  updateCart();
+  renderQueue();
+
+  nextQueueNum++;
+}
+
+function advanceStatus(index) {
+  const o = queueOrders[index];
+  if (o.status === "waiting") {
+    o.status = "preparing";
+    if (index === currentOrderIndex) updateProgressBar(2, "Chef is preparing your order.");
+  } else if (o.status === "preparing") {
+    o.status = "almost";
+    if (index === currentOrderIndex) updateProgressBar(3, "Your order is almost ready to collect!");
+  } else if (o.status === "almost") {
+    o.status = "ready";
+    if (index === currentOrderIndex) updateProgressBar(4, "Order is ready! Collect at counter.");
+  } else if (o.status === "ready") {
+    o.status = "done";
+  }
+  renderQueue();
+}
+
+function removeQueueOrder(index) {
+  if (index === currentOrderIndex) {
+    currentOrderIndex = -1;
+    updateProgressBar(0, "Place your order to begin tracking.");
+  }
+  queueOrders.splice(index, 1);
+  renderQueue();
+}
+
+function clearDoneOrders() {
+  queueOrders = queueOrders.filter((o, idx) => {
+    if (o.status === "done") {
+      if (idx === currentOrderIndex) {
+        currentOrderIndex = -1;
+        updateProgressBar(0, "Place your order to begin tracking.");
+      }
+      return false;
+    }
+    return true;
+  });
+  renderQueue();
+}
+
+function renderQueue() {
+  const grid = document.getElementById("queueGrid");
+  const stats = document.getElementById("queueStats");
+  if (!grid) return;
+
+  grid.innerHTML = "";
+  if (queueOrders.length === 0) {
+    grid.innerHTML = `<div class="queue-empty"><h3>No active orders</h3><p>Orders will show here live when placed.</p></div>`;
+    if (stats) stats.innerHTML = `<div class="stat-chip">Active Orders: <span>0</span></div>`;
+    return;
+  }
+
+  let waitingCount = 0, preparingCount = 0, readyCount = 0;
+
+  queueOrders.forEach((o, index) => {
+    if (o.status === "waiting") waitingCount++;
+    if (o.status === "preparing" || o.status === "almost") preparingCount++;
+    if (o.status === "ready") readyCount++;
+
+    let badgeClass = "badge-waiting", statusText = "Waiting";
+    if (o.status === "preparing") { badgeClass = "badge-preparing"; statusText = "Preparing"; }
+    if (o.status === "almost") { badgeClass = "badge-almost"; statusText = "Almost Ready"; }
+    if (o.status === "ready") { badgeClass = "badge-ready"; statusText = "Ready!"; }
+    if (o.status === "done") { badgeClass = "badge-done"; statusText = "Completed"; }
+
+    let actionButtonText = "Advance Step";
+    if (o.status === "waiting") actionButtonText = "Accept Order 👩‍🍳";
+    if (o.status === "preparing") actionButtonText = "Mark Almost Ready ☕";
+    if (o.status === "almost") actionButtonText = "Mark Ready ✅";
+    if (o.status === "ready") actionButtonText = "Complete & Finish 🏁";
+
+    grid.innerHTML += `
+      <div class="queue-card status-${o.status}">
+        <div style="display:flex; justify-content:between; align-items:center;">
+          <span class="queue-num">${o.num}</span>
+          <span style="font-size:11px; color:var(--text-muted); margin-left:auto;">${o.time}</span>
+        </div>
+        <div><span class="queue-badge ${badgeClass}">${statusText}</span></div>
+        <div class="queue-items">${o.items}</div>
+        <div class="queue-meta">Total: <strong>₱${o.total}</strong> &middot; Pay: <strong>${o.pay}</strong></div>
+        <div class="queue-actions">
+          ${o.status !== 'done' ? `<button class="q-btn q-btn-next" onclick="advanceStatus(${index})">${actionButtonText}</button>` : ''}
+          <button class="q-btn q-btn-del" onclick="removeQueueOrder(${index})">&times; Cancel</button>
+        </div>
+      </div>
+    `;
+  });
+
+  if (stats) {
+    stats.innerHTML = `
+      <div class="stat-chip">Waiting: <span>${waitingCount}</span></div>
+      <div class="stat-chip">Preparing: <span>${preparingCount}</span></div>
+      <div class="stat-chip">Ready: <span>${readyCount}</span></div>
+    `;
+  }
+}
+
+/* =========================================
+   UTILITIES
+========================================= */
+function closeModal() {
+  document.getElementById("orderModal").classList.remove("open");
+}
+
+function showToast(message) {
+  const t = document.getElementById("toast");
+  if (!t) return;
+  t.textContent = message;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2500);
+}
+
+function saveSocials() {
+  const fb = document.getElementById("input-fb").value;
+  const ig = document.getElementById("input-ig").value;
+  
+  document.getElementById("lbl-fb").textContent = fb.split("/").pop() || "kapeescapar";
+  document.getElementById("lbl-ig").textContent = "@" + (ig.split("/").pop() || "kapeescapar");
+  
+  showToast("Social media channels updated!");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderMenu();
+  renderQueue();
+});
+</script>
+</body>
+</html>
